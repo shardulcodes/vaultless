@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Zero-Storage Password Generator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        background: #f4f6f8;
+        color: #333;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+      .container {
+        background: #fff;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+      }
+      h2 {
+        margin-bottom: 1.5rem;
+        text-align: center;
+        color: #1a1a1a;
+      }
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+      }
+      input[type="text"],
+      input[type="password"],
+      input[type="number"] {
+        width: 100%;
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        transition: border 0.3s;
+      }
+      input:focus {
+        border-color: #4a90e2;
+        outline: none;
+      }
+      button {
+        width: 100%;
+        padding: 0.75rem;
+        background: #4a90e2;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background 0.3s;
+      }
+      button:hover {
+        background: #357ab8;
+      }
+      #result-container {
+        margin-top: 1rem;
+        text-align: center;
+      }
+      #result {
+        width: 100%;
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background: #f0f0f0;
+        font-family: monospace;
+      }
+      .copy-btn {
+        margin-top: 0.5rem;
+        background: #27ae60;
+      }
+      .copy-btn:hover {
+        background: #1e874b;
+      }
+      .feedback {
+        font-size: 0.9rem;
+        color: #d93025;
+        margin-top: -0.8rem;
+        margin-bottom: 0.8rem;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h2>Password Generator</h2>
+
+      <label for="name">Website/App Name</label>
+      <input type="text" id="name" placeholder="e.g. example.com" />
+
+      <label for="master_password">Master Password</label>
+      <input
+        type="password"
+        id="master_password"
+        placeholder="Your master password"
+      />
+
+      <label for="length">Password Length</label>
+      <input type="number" id="length" placeholder="e.g. 16" min="8" max="40" />
+      <div id="length-feedback" class="feedback"></div>
+
+      <button onclick="generatePassword()">Generate Password</button>
+
+      <div id="result-container" style="display: none">
+        <label for="result">Generated Password:</label>
+        <input type="text" id="result" readonly />
+        <button class="copy-btn" onclick="copyPassword()">Copy</button>
+      </div>
+    </div>
+
+    <script>
+      async function generatePassword() {
+        const name = document.getElementById("name").value.trim();
+        const master_password = document
+          .getElementById("master_password")
+          .value.trim();
+        const length = parseInt(document.getElementById("length").value.trim());
+        const feedback = document.getElementById("length-feedback");
+
+        // Clear previous feedback
+        feedback.textContent = "";
+
+        // Validate length
+        if (isNaN(length) || length < 8 || length > 40) {
+          feedback.textContent =
+            "Please enter a password length between 8 and 40.";
+          return;
+        }
+
+        if (!name || !master_password) {
+          feedback.textContent = "Please fill in all fields.";
+          return;
+        }
+
+        try {
+          const response = await fetch("/generate", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name, master_password, length }),
+          });
+
+          if (!response.ok) {
+            feedback.textContent = "Server error while generating password.";
+            return;
+          }
+
+          const data = await response.json();
+          if (!data.password) {
+            feedback.textContent = "Invalid response from server.";
+            return;
+          }
+
+          document.getElementById("result").value = data.password;
+          document.getElementById("result-container").style.display = "block";
+        } catch (error) {
+          console.error(error);
+          feedback.textContent = "Error communicating with server.";
+        }
+      }
+
+      function copyPassword() {
+        const resultInput = document.getElementById("result");
+        resultInput.select();
+        resultInput.setSelectionRange(0, 99999);
+
+        try {
+          document.execCommand("copy");
+          const feedback = document.getElementById("length-feedback");
+          feedback.textContent = "Password copied to clipboard!";
+          feedback.style.color = "#27ae60";
+          setTimeout(() => {
+            feedback.textContent = "";
+            feedback.style.color = "#d93025";
+          }, 2000);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    </script>
+  </body>
+</html>
