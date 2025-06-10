@@ -1,11 +1,11 @@
-# 🔐 Deterministic Password Generator Flask App
+# Deterministic Password Generator
 
 A secure, zero-storage password manager built using Flask.  
 It deterministically generates strong passwords based on a combination of a master password, site/service name, and a device-specific secret — without storing any actual passwords.
 
 ---
 
-## 🚀 Features
+## Features
 
 - **Zero Storage** – No passwords are stored anywhere.
 - **Device-bound Secrets** – Passwords are tied to the specific machine.
