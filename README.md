@@ -29,8 +29,8 @@ It deterministically generates strong passwords based on a combination of a mast
 ## How It Works
 
 1. On first run, the app creates:
-   - `device_secret.key`: a unique device secret
-   - `fernet_master.key`: reserved for potential encryption features
+   - `secret.key`: a unique device secret
+   - `master.key`: reserved for potential encryption features
 2. When a user inputs:
    - `name` (e.g., "Gmail")
    - `master_password` (your secure phrase)
